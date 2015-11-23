@@ -17,7 +17,7 @@ rings :: Int -> Command
 rings x = f x :#: p :#: f x :#: p :#: f x :#: p :#: f x
         where
           f 0 = Go 5
-          f x = GrabPen snowblue :#: f (x-1) :#: GrabPen blue :#: f (x-1) :#: p :#: f (x-1) :#: p :#: GrabPen red :#: f (x-1) :#: p :#: GrabPen yellow :#: f (x-1) :#: p :#: GrabPen blue :#: f (x-1) :#: p :#: GrabPen white :#: f (x-1) :#: n :#: GrabPen green :#: f (x-1)
+          f x = GrabPen snowblue :#: f (x-1) :#: GrabPen blue :#: f (x-1) :#: p :#: f (x-1) :#: p :#: GrabPen red :#: f (x-1) :#: p :#: GrabPen yellow :#: f (x-1) :#: p :#: GrabPen blue :#: f (x-1) :#: p :#: GrabPen white :#: f (x-1) :#: n :#: GrabPen snowblue :#: f (x-1)
           p = Turn 90
           n = Turn (-90)
 
@@ -32,10 +32,10 @@ square x = z x :#: n :#: n :#: f x :#: n :#: n :#: z x :#: n :#: n :#: f x
            z x = p :#: y (x-1) :#: n :#: f (x-1) :#: n :#: y (x-1) :#: p
            y 0 = GrabPen blue :#: Go 5
            y x = n :#: z (x-1) :#: p :#: f (x-1) :#: p :#: z (x-1) :#: n
-           f 0 = GrabPen green:#: Go 5
+           f 0 = GrabPen red :#: Go 5
            f x = f (x-1)
            p = Turn 45
            n = Turn (-45)
 
 main :: IO ()
-main = display (rings 5)
+main = display (square 12)
