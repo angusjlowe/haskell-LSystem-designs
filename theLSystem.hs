@@ -3,12 +3,12 @@
 
 
 
-module theLSystem (
+module TheLSystem (
     display,
     Command (..),
-    Pen (..), black, white, red, green, blue, snowblue,
+    Pen (..), black, white, red, green, blue, snowblue, yellow, purple,
     Distance, Angle,
-    triangle
+    triangle, tree
    )
     where
 
@@ -59,6 +59,9 @@ Pnt x y `lub` Pnt x' y'  =  Pnt (x `max` x') (y `max` y')
 glb :: Pnt -> Pnt -> Pnt
 Pnt x y `glb` Pnt x' y'  =  Pnt (x `min` x') (y `min` y')
 
+-- The last two functions are not called min and max
+-- because the invariant for min and max states
+-- (min x y, max x y) = (x,y) or (y,x).
 
 pointToSize :: Pnt -> Size
 pointToSize (Pnt x y) = Size (ceiling x) (ceiling y)
@@ -66,7 +69,7 @@ pointToSize (Pnt x y) = Size (ceiling x) (ceiling y)
 sizeToPoint :: Size -> Pnt
 sizeToPoint (Size x y) = Pnt (fromIntegral x) (fromIntegral y)
 
--- Colours
+-- Colors
 
 data Pen = Colour GL.GLfloat GL.GLfloat GL.GLfloat
          | Inkless
@@ -76,10 +79,12 @@ penToRGB :: Pen -> GL.Color3 GL.GLfloat
 penToRGB (Colour r g b)  =  GL.Color3 r g b
 penToRGB Inkless  =  error "penToRGB: inkless"
 
-white, black, red, green, blue, snowblue :: Pen
+white, black, red, green, blue :: Pen
 white = Colour 1.0 1.0 1.0
+snowblue = Colour 0.32 0.9 0.95
+yellow = Colour 0.95 1.0 0.13
+purple = Colour 0.53 0.14 0.98
 black = Colour 0.0 0.0 0.0
-snowblue = Colour 0.019 0.645 0.89
 red   = Colour 1.0 0.0 0.0
 green = Colour 0.0 1.0 0.0
 blue  = Colour 0.0 0.0 1.0
@@ -106,7 +111,7 @@ display c = do
   initialDisplayMode $= [DoubleBuffered]
   initialWindowSize  $= pointToSize theCanvas
   getArgsAndInitialize
-  w <- createWindow "My Project"
+  w <- createWindow "L-System"
   displayCallback $= draw c
   reshapeCallback $= Just (\x -> (viewport $= (Position 0 0, x)))
   --actionOnWindowClose $= ContinueExectuion
@@ -142,7 +147,7 @@ toVertex (Pnt x y)  =  GL.vertex $ GL.Vertex3
 
 
 -- Commands for moving the turtle around
-
+--  Turtles turn counter-clockwise and start facing up
 
 type Angle    = Float
 type Distance = Float
@@ -215,6 +220,18 @@ triangle x  =  p :#: f x
   f x  = f (x-1) :#: p :#: f (x-1) :#: n :#: f (x-1) :#: n :#: f (x-1) :#: p :#: f (x-1)
   n        = Turn 90
   p        = Turn (-90)
+
+tree :: Int -> Command
+tree x  =  f x
+  where
+  f 0      = GrabPen red :#: Go 10
+  f x  = g x :#: Branch (n :#: f (x-1))
+                 :#: Branch (p :#: f (x-1))
+                 :#: Branch (g (x-1) :#: f (x-1))
+  g 0      = GrabPen green :#: Go 10
+  g x  = g (x-1) :#: g (x-1)
+  n        = Turn 45
+  p        = Turn (-45)
 
 
 
