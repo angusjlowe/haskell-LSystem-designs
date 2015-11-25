@@ -6,10 +6,9 @@
 module TheLSystem (
     display,
     Command (..),
-    Pen (..), black, white, red, green, blue, snowblue, yellow, purple,
+    Pen (..), black, white, red, green, blue, snowblue, yellow, purple, darkpurple,
     Distance, Angle,
-    triangle, tree
-   )
+  )
     where
 
 import qualified Graphics.Rendering.OpenGL as GL
@@ -59,9 +58,7 @@ Pnt x y `lub` Pnt x' y'  =  Pnt (x `max` x') (y `max` y')
 glb :: Pnt -> Pnt -> Pnt
 Pnt x y `glb` Pnt x' y'  =  Pnt (x `min` x') (y `min` y')
 
--- The last two functions are not called min and max
--- because the invariant for min and max states
--- (min x y, max x y) = (x,y) or (y,x).
+
 
 pointToSize :: Pnt -> Size
 pointToSize (Pnt x y) = Size (ceiling x) (ceiling y)
@@ -88,6 +85,7 @@ black = Colour 0.0 0.0 0.0
 red   = Colour 1.0 0.0 0.0
 green = Colour 0.0 1.0 0.0
 blue  = Colour 0.0 0.0 1.0
+darkpurple = Colour 0.2 0.0 0.4
 
 -- Lines
 
@@ -100,7 +98,7 @@ theCanvas :: Pnt
 theCanvas  =  Pnt 800 800
 
 theBGcolor :: GL.Color3 GL.GLfloat
-theBGcolor = penToRGB black
+theBGcolor = penToRGB darkpurple
 
 
 
@@ -146,8 +144,6 @@ toVertex (Pnt x y)  =  GL.vertex $ GL.Vertex3
 
 
 
--- Commands for moving the turtle around
---  Turtles turn counter-clockwise and start facing up
 
 type Angle    = Float
 type Distance = Float
@@ -161,8 +157,6 @@ data Command = Go Distance
              | GrabPen Pen
                deriving (Eq, Ord, Show)
 
-
--- Converting commands to GL graphics
 
 execute :: Command -> [Ln]
 execute c  =  lines
@@ -211,27 +205,6 @@ polar ang  =  Pnt (cos radians) (sin radians)
   radians  =  ang * 2 * pi / 360
 
 
--- Sample LSystems
-
-triangle :: Int -> Command
-triangle x  =  p :#: f x
-  where
-  f 0      = Go 10
-  f x  = f (x-1) :#: p :#: f (x-1) :#: n :#: f (x-1) :#: n :#: f (x-1) :#: p :#: f (x-1)
-  n        = Turn 90
-  p        = Turn (-90)
-
-tree :: Int -> Command
-tree x  =  f x
-  where
-  f 0      = GrabPen red :#: Go 10
-  f x  = g x :#: Branch (n :#: f (x-1))
-                 :#: Branch (p :#: f (x-1))
-                 :#: Branch (g (x-1) :#: f (x-1))
-  g 0      = GrabPen green :#: Go 10
-  g x  = g (x-1) :#: g (x-1)
-  n        = Turn 45
-  p        = Turn (-45)
 
 
 
